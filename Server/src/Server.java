@@ -19,8 +19,8 @@ public class Server {
 		int clientNumber = 0;
 				
 		// Adresse et port du serveur
-		//String serverAddress = "127.0.0.1";
-		//int serverPort = 5000;
+		String serverAddress = "127.0.0.1";
+		int serverPort = 5000;
 		
 		// Création de la connexion pour communiquer avec les clients
 		listener = new ServerSocket();
