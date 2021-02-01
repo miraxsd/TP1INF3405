@@ -11,24 +11,36 @@ public class Client {
 	 */
 	public static void main (String[] args) throws Exception
 	{
+		//try{
+		
 		// Address et port du serveur
 		System.out.println("Enter IP address :");
 		Scanner sc = new Scanner(System.in);
 		String serverAddress = sc.next();
 		/*String serverAddress = "127.0.0.1";
-		String [] checkSA = serverAddress.split("\\.");
-		Boolean ipValide = false;
+		String [] checkSA = serverAddress.split("\\.");*/
+		//Boolean ipValide = false;
 		
-		while (ipValide=false)
+		while (!ipvalide(serverAddress))
 		{
-			if (Integer.parseInt(checkSA[0]>255 || checkSA[1]>255 || checkSA[2]>255 || checkSA[3]>255);
-			
-		}*/
+			System.out.println("IP adress invalid. Please enter another IP adress :");
+			serverAddress=sc.next();
+		}
 		System.out.println("Enter port number :");
-		int port = sc.nextInt();
+		int port=0;
+		while(port<5000 && port>5050) {
+			try {
+				port = sc.nextInt();
+			}catch(java.util.InputMismatchException e) {
+				System.out.println("Invalid port. Please enter another port between 5000 and 5050 :");
+			}
+			if(port<5000 && port>5050)
+				System.out.println("Invalid port. Please enter another port between 5000 and 5050 :");
+		}
 		System.out.format(serverAddress + " and " + port);
 		sc.close();
-		
+		if(socket!=null)
+			socket.close();
 		// Création d'une nouvelle connexion avec le serveur
 		socket = new Socket(serverAddress, port);
 		System.out.println("The server is running on " + serverAddress+ ":"+ port);
@@ -41,5 +53,40 @@ public class Client {
 		
 		// Fermeture de la connexion avec le serveur
 		socket.close();
+		//}catch(java.net.BindException e) { socket.close();}
 	}
+	public static boolean ipvalide (String serverAddress) {
+		if(serverAddress.endsWith(".")) 
+			return false;
+	
+		String [] checkSA = serverAddress.split("\\.");
+		
+		int ipLength = checkSA.length; 
+		int compteur =0;
+		
+		if(ipLength !=4)
+			return false;
+		while(compteur < 4) {
+			try {
+				if (Integer.parseInt(checkSA[compteur])<=255 && Integer.parseInt(checkSA[compteur])>=0 ) 
+					compteur++;
+				else 
+					return false;
+			}catch(NumberFormatException e) {
+				return false;
+			}
+				
+		}
+	
+		return true;
+	}
+	
+	
+	
 }
+
+
+
+
+
+
