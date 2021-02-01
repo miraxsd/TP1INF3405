@@ -11,15 +11,10 @@ public class Client {
 	 */
 	public static void main (String[] args) throws Exception
 	{
-		//try{
-		
 		// Address et port du serveur
 		System.out.println("Enter IP address :");
 		Scanner sc = new Scanner(System.in);
 		String serverAddress = sc.next();
-		/*String serverAddress = "127.0.0.1";
-		String [] checkSA = serverAddress.split("\\.");*/
-		//Boolean ipValide = false;
 		
 		while (!ipvalide(serverAddress))
 		{
@@ -28,13 +23,13 @@ public class Client {
 		}
 		System.out.println("Enter port number :");
 		int port=0;
-		while(port<5000 && port>5050) {
+		while((port<5000) || (port>5050)) {
 			try {
 				port = sc.nextInt();
 			}catch(java.util.InputMismatchException e) {
 				System.out.println("Invalid port. Please enter another port between 5000 and 5050 :");
 			}
-			if(port<5000 && port>5050)
+			if(port<5000 || port>5050)
 				System.out.println("Invalid port. Please enter another port between 5000 and 5050 :");
 		}
 		System.out.format(serverAddress + " and " + port);
