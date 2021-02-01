@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.io.DataOutputStream;
 
 public class Server {
@@ -16,10 +17,10 @@ public class Server {
 	
 		// Compteur incrémenté à chaque connexion d'un client au serveur
 		int clientNumber = 0;
-		
+				
 		// Adresse et port du serveur
-		String serverAddress = "127.0.0.1";
-		int serverPort = 5000;
+		//String serverAddress = "127.0.0.1";
+		//int serverPort = 5000;
 		
 		// Création de la connexion pour communiquer avec les clients
 		listener = new ServerSocket();
