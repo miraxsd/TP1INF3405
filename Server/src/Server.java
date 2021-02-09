@@ -1,10 +1,13 @@
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.*;
 
 public class Server {
 
@@ -75,6 +78,23 @@ public class Server {
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				// Envoie d'un message au client
 				out.writeUTF("Hellow from server - you are client#" + clientNumber);
+				//out.writeUTF(Server.executeCommand("dir"));
+				File dir = new File(System.getProperty("user.dir"));
+				//Stream<Path> fichiersCourant=Files.list(Paths.get(""));
+				//out.writeUTF(Files.newDirectoryStream(Paths.get("")).toString());
+				for (String nomFichier : dir.list()) {
+		            out.writeUTF(nomFichier);
+		        }
+				// Création d'un canal entrant pour recevoir les messages envoyés par le serveur
+				DataInputStream in = new DataInputStream(socket.getInputStream());
+				// Attente de la réception d'un message envoyé par le serveur sur le canal
+				String commande;
+				do{
+					// Reception du message du client
+					commande = in.readUTF(); 
+				}
+					while(commande!="exit");
+				
 			}
 			catch (IOException  e)
 			{
@@ -95,4 +115,23 @@ public class Server {
 			}
 		}
 	}
+	/*public static String executeCommand(String command) {
+        StringBuffer output = new StringBuffer();
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                output.append(line + "\n");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return output.toString();
+    }*/
 }
