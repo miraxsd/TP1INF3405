@@ -1,13 +1,24 @@
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.*;
+import java.io.File;
+import java.io.InputStreamReader; 
+import java.io.PrintStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Server {
 
@@ -41,11 +52,12 @@ public class Server {
 			 */
 			while(true) 
 			{
-				// Important: la fct accept() est bloquante : attaned qu<un prochain client se connecte
+				// Important: la fct accept() est bloquante : attend qu'un prochain client se connecte
 				// Une nouvelle connexion : on incrémente le compteur clientNumber
-				new ClientHandler(listener.accept(), clientNumber++).start();
+				new ClientHandler(listener.accept(), clientNumber++, serverAddress, serverPort).start();
 				
 			}
+			
 		}
 		finally
 		{
@@ -61,39 +73,56 @@ public class Server {
 	{
 		private Socket socket;
 		private int clientNumber;
-		
-		public ClientHandler(Socket socket, int clientNumber)
+		private String serverAddress;
+		private int serverPort;
+	
+  
+		public ClientHandler(Socket socket, int clientNumber, String serverAddress, int serverPort) throws IOException
 		{
 			this.socket = socket;
 			this.clientNumber = clientNumber;
+			this.serverAddress = serverAddress;
 			System.out.println("New connection with client#"+ clientNumber + " at "+ socket);
-			
+			       
 		}
 		/* Une thread qui se charge d'envoyer au client un message de bienvenue*/
 		public void run()
 		{
+			
 			try
 			{
-				// Création d'un canal sortant pour envoyer des messages au client
-				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-				// Envoie d'un message au client
-				out.writeUTF("Hellow from server - you are client#" + clientNumber);
-				//out.writeUTF(Server.executeCommand("dir"));
-				File dir = new File(System.getProperty("user.dir"));
-				//Stream<Path> fichiersCourant=Files.list(Paths.get(""));
-				//out.writeUTF(Files.newDirectoryStream(Paths.get("")).toString());
-				for (String nomFichier : dir.list()) {
-		            out.writeUTF(nomFichier);
-		        }
-				// Création d'un canal entrant pour recevoir les messages envoyés par le serveur
-				DataInputStream in = new DataInputStream(socket.getInputStream());
-				// Attente de la réception d'un message envoyé par le serveur sur le canal
-				String commande;
-				do{
-					// Reception du message du client
-					commande = in.readUTF(); 
+		        // to send data to the client 
+		        PrintStream ps = new PrintStream(socket.getOutputStream()); 
+		  
+		        // to read data coming from the client 
+		        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
+		        //DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+		        
+		        // to read data from the keyboard 
+		        BufferedReader kb = new BufferedReader(new InputStreamReader(System.in)); 
+				while (true) {
+					
+					// Création d'un canal sortant pour envoyer des messages au client
+					DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+					
+					// Envoie d'un message au client
+					out.writeUTF("Hello from server - you are client #" + clientNumber+". What would you like to do?");
+					
+					String strCl, strKb;
+					LocalDateTime dateTime = LocalDateTime.now();
+					DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
+					String formattedDateTime = dateTime.format(myFormatObj);
+					int port = socket.getPort();
+					while ((strCl = br.readLine()) != null) { 
+						
+		                System.out.println("[" + serverAddress +":"+ port +" - "+ formattedDateTime + "] : "+ strCl); 
+		                
+		                
+		                ps.println("Command executed");
+		                
+		               
+		            }							
 				}
-					while(commande!="exit");
 				
 			}
 			catch (IOException  e)
@@ -106,6 +135,10 @@ public class Server {
 				{
 					// Fermeture de la connexion avec le client
 					socket.close();
+					
+					// terminate
+					System.exit(0);
+		
 				}
 				catch (IOException  e)
 				{
@@ -115,23 +148,13 @@ public class Server {
 			}
 		}
 	}
-	/*public static String executeCommand(String command) {
-        StringBuffer output = new StringBuffer();
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-        return output.toString();
-    }*/
+	public static Set<String> listFilesUsingFileWalk(String dir, int depth) throws IOException {
+	    try (Stream<Path> stream = Files.walk(Paths.get(dir), depth)) {
+	        return stream
+	          .filter(file -> !Files.isDirectory(file))
+	          .map(Path::getFileName)
+	          .map(Path::toString)
+	          .collect(Collectors.toSet());
+	    }
+	}
 }

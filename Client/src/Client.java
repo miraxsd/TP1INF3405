@@ -1,5 +1,7 @@
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -33,47 +35,53 @@ public class Client {
 			if(port<5000 || port>5050)
 				System.out.println("Invalid port. Please enter another port between 5000 and 5050 :");
 		}
-		System.out.format(serverAddress + " and " + port);
+		
 		
 		if(socket!=null)
 			socket.close();
-		
-		// Création d'une nouvelle connexion avec le serveur
+		// 1. Création d'une nouvelle connexion avec le serveur
 		socket = new Socket(serverAddress, port);
 		System.out.println("The server is running on " + serverAddress+ ":"+ port);
+		
 		// Création d'un canal entrant pour recevoir les messages envoyés par le serveur
 		DataInputStream in = new DataInputStream(socket.getInputStream());
-		
-		// Création d'un canal sortant pour envoyer des messages au serveur
-		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-		String commande="";
-		//do{
-		// Envoie d'un message au serveur
-		
-		//while(commande!="exit");*/ 
+					
 		// Attente de la réception d'un message envoyé par le serveur sur le canal
-		String helloMessageFromServer="";
-		//helloMessageFromServer = in.readUTF();
-		try {
-		do{
-			/*if(sc.hasNext()) {
-			commande = sc.next(); 
-			out.writeUTF(commande);}*/
-			helloMessageFromServer = in.readUTF();
-			System.out.println(helloMessageFromServer);
-		}
-		while(!helloMessageFromServer.isBlank() /*&& commande.compareTo("exit")!=0*/);
-		}catch(java.io.EOFException ignore) {};
-		//System.out.println(helloMessageFromServer);
-		in.close();
-		out.close();
+		String helloMessageFromServer = in.readUTF();
+		System.out.println(helloMessageFromServer);
 		
+		// Création d'un canal sortant pour écrire au serveur 
+		DataOutputStream dos = new DataOutputStream(socket.getOutputStream()); 
+		
+		// Read data coming from the server 
+				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
+
+		// Read data from the keyboard 
+		BufferedReader kb = new BufferedReader( new InputStreamReader(System.in)); 
+		String strKb, strSv; 
+
+				// repeat as long as exit 
+				// is not typed at client 
+				while (!(strKb = kb.readLine()).equals("exit")) { 
+
+					// send to the server 
+					dos.writeBytes(strKb + "\n"); 
+					
+					// receive from the server 
+					strSv = br.readLine(); 
+					//strSv = in.readUTF(); 
+					System.out.println(strSv); 
+					}
+		
+				
 		// Fermeture de la connexion avec le serveur
-		
-		sc.close();
-		socket.close();
-		
+				socket.close();
+				// close connections with read/write 
+				dos.close(); 
+				br.close(); 
+				kb.close(); 
 		//}catch(java.net.BindException e) { socket.close();}
+		sc.close();
 	}
 	public static boolean ipvalide (String serverAddress) {
 		if(serverAddress.endsWith(".")) 
@@ -94,10 +102,15 @@ public class Client {
 					return false;
 			}catch(NumberFormatException e) {
 				return false;
-			}		
+			}
+				
 		}
+	
 		return true;
-	}	
+	}
+	
+	
+	
 }
 
 
