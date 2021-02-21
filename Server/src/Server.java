@@ -13,9 +13,10 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,7 +43,7 @@ public class Server {
 
 		// Association de l'adresse et du port à la connexion
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
-		System.out.format("The server is running on %s:%d%n", serverAddress, serverPort);
+		System.out.format("Le serveur opère sur l'adresse %s:%d%n", serverAddress, serverPort);
 
 		try {
 			/*
@@ -53,7 +54,7 @@ public class Server {
 				// Important: la fct accept() est bloquante : attend qu'un prochain client se
 				// connecte
 				// Une nouvelle connexion : on incrémente le compteur clientNumber
-				new ClientHandler(listener.accept(), clientNumber++, serverAddress, serverPort).start();
+				new ClientHandler(listener.accept(), clientNumber++, serverAddress).start();
 
 			}
 
@@ -71,13 +72,13 @@ public class Server {
 		private Socket socket;
 		private int clientNumber;
 		private String serverAddress;
-		private int serverPort;
+		
 
-		public ClientHandler(Socket socket, int clientNumber, String serverAddress, int serverPort) throws IOException {
+		public ClientHandler(Socket socket, int clientNumber, String serverAddress) throws IOException {
 			this.socket = socket;
 			this.clientNumber = clientNumber;
 			this.serverAddress = serverAddress;
-			System.out.println("New connection with client#" + clientNumber + " at " + socket);
+			System.out.println("Nouvelle connexion avec client#" + clientNumber + " sur " + socket);
 
 		}
 
@@ -85,90 +86,93 @@ public class Server {
 		public void run() {
 
 			try {
-				// to send data to the client
-				PrintStream ps = new PrintStream(socket.getOutputStream());
+				
 				// Création d'un canal sortant pour envoyer des messages au client
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				// to read data coming from the client
-				 BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				Scanner sc = new Scanner(socket.getInputStream());
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				FileManager dir = new FileManager(System.getProperty("user.dir"));
-				// to read data from the keyboard
-				//BufferedReader kb = new BufferedReader(new InputStreamReader(Socket.in));
 				// Envoie d'un message au client
-				out.writeUTF("Hello from server - you are client #" + clientNumber + ". What would you like to do?");
+				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
 
-					String strClient="";
+					String strClient, fileName ="";
 					
 					LocalDateTime dateTime = LocalDateTime.now();
 					DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
 					String formattedDateTime = dateTime.format(myFormatObj);
 					int port = socket.getPort();
-
-					while ((strClient = in.readUTF()) != null) {
+					
+					
+					while ((strClient=sc.nextLine())!= null) {
+						
 						System.out.println(
 								"[" + serverAddress + ":" + port + " - " + formattedDateTime + "] : " + strClient);
+						
 						// Switch Case pour les commandes
-						String command = strClient.split(" ")[0];
-						switch (command) {
+						String [] command = strClient.split(" ");
+						
+						switch (command[0]) {
 						case "ls":
 							dir.ls(out);
 							break;
 						case "cd":
-							in.readUTF();
-							out.writeUTF("Je suis cd qu'est ce que vous voulez de moi?");
+							fileName=dir.getName(); // C'est pas la bonne fonction, je n'ai pas vrm regardé ça MTG
+							//out.writeUTF("Je suis cd qu'est ce que vous voulez de moi?");
+							out.writeUTF(fileName);
 							break;
 						case "mkdir":
-							in.readUTF();
 							// create an abstract pathname de type File object
-							String path = ""; // il faut modifier cette ligne pour prendre le nom du fichier choisi par
-												// l'utilisitateur
+							String path = command[1]; // Nom de dossier écrit par le client
 							File file = new File(path);
-							if (file.mkdir()) {
-								System.out.println("Directory is created");
-							} else {
-								System.out.println("Directory can't be created");
+							if (file.mkdir()) { 
+								out.writeUTF("Le dossier " + file +" a été créé"); 
+							} else { // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
+								out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
 							}
 							break;
 						case "upload":
-							in.readUTF();
+							//in.readUTF();
 							out.writeUTF("Je suis upload qu'est ce que vous voulez de moi?");
 							break;
 						case "download":
-							in.readUTF();
+							//in.readUTF();
 							out.writeUTF("Je suis download qu'est ce que vous voulez de moi?");
 							break;
 						case "exit":
 							out.writeUTF("Vous avez été déconnecté avec succès");
-							break;
+							//break;
+							return;
 						default:
 							out.writeUTF("La commande n'a pas été reconnue");
 							// break;
 						}
-						// ps.println("Command executed");
-
+						
 						out.writeUTF("end");
-						command = "";
+						command[0]= "";
+						
 						// in.
 						break;
 					}
+					 
 				}
-
+				
 			} catch (IOException e) {
-				System.out.println("Error handling client# " + clientNumber + ": " + e);
+				System.out.println("Erreur lors du traitement du client# " + clientNumber + ": " + e);
 			} finally {
 				try {
 					// Fermeture de la connexion avec le client
 					socket.close();
+					
 
 					// terminate
 					// System.exit(0);
 
 				} catch (IOException e) {
-					System.out.println("Couldn't close a socket, what's going on?");
+					System.out.println("Erreur lors de la fermeture du socket");
 				}
-				System.out.println("Connection with client# " + clientNumber + " closed");
+				System.out.println("Connexion avec client# " + clientNumber + " fermée");
 			}
 		}
 	}
