@@ -92,7 +92,7 @@ public class Server {
 				// to read data coming from the client
 				Scanner sc = new Scanner(socket.getInputStream());
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-				FileManager dir = new FileManager(System.getProperty("user.dir"));
+				FileManager dir = new FileManager(System.getProperty("user.dir"),"Stockage");	// Le client se retrouvera directement dans le dossier Stockage
 				// Envoie d'un message au client
 				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
@@ -118,19 +118,11 @@ public class Server {
 							dir.ls(out);
 							break;
 						case "cd":
-							fileName=dir.getName(); // C'est pas la bonne fonction, je n'ai pas vrm regardé ça MTG
-							//out.writeUTF("Je suis cd qu'est ce que vous voulez de moi?");
-							out.writeUTF(fileName);
+							dir = new FileManager(dir,command[1]);
+							out.writeUTF("Vous êtes dans le dossier "+ dir.getPath());
 							break;
 						case "mkdir":
-							// create an abstract pathname de type File object
-							String path = command[1]; // Nom de dossier écrit par le client
-							File file = new File(path);
-							if (file.mkdir()) { 
-								out.writeUTF("Le dossier " + file +" a été créé"); 
-							} else { // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
-								out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
-							}
+							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
 							break;
 						case "upload":
 							//in.readUTF();

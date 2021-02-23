@@ -56,4 +56,14 @@ public class FileManager extends File {
             out.writeUTF(nomFichier);
         }
 	}
+	
+	public void mkdir(String path,DataOutputStream out) throws IOException {
+		File file = new File(path); // crée un nom de path abstrait de type File object
+		if (file.mkdir()) { 
+			out.writeUTF("Le dossier " + file +" a été créé"); 
+		} else { // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
+			out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
+		}
+	}
+	
 }
