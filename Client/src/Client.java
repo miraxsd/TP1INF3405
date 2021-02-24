@@ -17,6 +17,7 @@ public class Client {
 	 */
 	public static void main(String[] args) throws Exception {
 		Scanner sc = new Scanner(System.in);
+		ClientFileManager dir = new ClientFileManager(System.getProperty("user.dir"),"WorkSpace");
 		// Address et port du serveur
 		System.out.println("Entrez adresse IP du serveur:");
 		
@@ -69,13 +70,21 @@ public class Client {
 			// Transmettre message au serveur
 			
 			ps.println(strKb);
-			
-			// Si le client veut Upload un fichier au serveur
-			if(in.readUTF().equals("upload")) {
-				ClientFileManager.sendFile(in.readUTF(),out);
-			}
+			switch (strKb.split(" ")[0]) {
+			case "upload":
+				// Si le client veut Upload un fichier au serveur
+				dir.sendFile( strKb.split(" ")[1],out);
+				break;
+			case "download":
+				dir.saveFile(in, strKb.split(" ")[1]);
+				break;
+			default:
 			// Recevoir message du serveur
 			readMessagesFromServer(in);
+			}
+			
+
+			
 		}
 
 		// Fermeture de la connexion avec le serveur
@@ -120,9 +129,13 @@ public class Client {
 				String messageFromServer = "";
 				if ((messageFromServer = in.readUTF()).equals("end"))
 					break;
-				if(in.readUTF().equals("download")) {
+				/*if(in.readUTF().equals("download")) {
 					ClientFileManager.saveFile(in, in.readUTF());
 				}
+				// Si le client veut Upload un fichier au serveur
+				if(in.readUTF().equals("upload")) {
+					ClientFileManager.sendFile(in.readUTF(),out);
+				}*/
 					
 				System.out.println(messageFromServer);
 			}

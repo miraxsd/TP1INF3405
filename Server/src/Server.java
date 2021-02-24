@@ -128,7 +128,7 @@ public class Server {
 						case "upload":
 							//in.readUTF();
 							try {
-								FileManager.saveFile(in, command[1]);
+								dir.saveFile(in, command[1]);
 								out.writeUTF("upload "+command[1]);
 							}
 							catch(java.io.FileNotFoundException e) {
@@ -138,7 +138,7 @@ public class Server {
 						case "download":
 							//in.readUTF();
 							try {
-							FileManager.sendFile(command[1],out);
+							dir.sendFile(command[1],out);
 							out.writeUTF("download "+command[1]);
 							}
 							catch(java.io.FileNotFoundException e) {
@@ -158,7 +158,7 @@ public class Server {
 						command[0]= "";
 						
 						// in.
-						break;
+						//break;
 					}
 					 
 				}
