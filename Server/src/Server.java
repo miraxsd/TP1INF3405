@@ -123,14 +123,27 @@ public class Server {
 							break;
 						case "mkdir":
 							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
+							dir = new FileManager(dir,command[1]);
 							break;
 						case "upload":
 							//in.readUTF();
-							out.writeUTF("Je suis upload qu'est ce que vous voulez de moi?");
+							try {
+								FileManager.saveFile(in, command[1]);
+								out.writeUTF("upload "+command[1]);
+							}
+							catch(java.io.FileNotFoundException e) {
+								e.printStackTrace();
+							}
 							break;
 						case "download":
 							//in.readUTF();
-							out.writeUTF("Je suis download qu'est ce que vous voulez de moi?");
+							try {
+							FileManager.sendFile(command[1],out);
+							out.writeUTF("download "+command[1]);
+							}
+							catch(java.io.FileNotFoundException e) {
+								e.printStackTrace();
+							}
 							break;
 						case "exit":
 							out.writeUTF("Vous avez été déconnecté avec succès");

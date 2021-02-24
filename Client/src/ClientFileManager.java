@@ -11,20 +11,15 @@ import java.net.URI;
  */
 
 /**
- * @author Karim Gargouri, Samia Safaa, Madeleine Tjiu
+ * @author Karim
  *
  */
-public class FileManager extends File {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class ClientFileManager extends File {
 
 	/**
 	 * @param pathname
 	 */
-	public FileManager(String pathname) {
+	public ClientFileManager(String pathname) {
 		super(pathname);
 		// TODO Auto-generated constructor stub
 	}
@@ -32,7 +27,7 @@ public class FileManager extends File {
 	/**
 	 * @param uri
 	 */
-	public FileManager(URI uri) {
+	public ClientFileManager(URI uri) {
 		super(uri);
 		// TODO Auto-generated constructor stub
 	}
@@ -41,7 +36,7 @@ public class FileManager extends File {
 	 * @param parent
 	 * @param child
 	 */
-	public FileManager(String parent, String child) {
+	public ClientFileManager(String parent, String child) {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
 	}
@@ -50,23 +45,9 @@ public class FileManager extends File {
 	 * @param parent
 	 * @param child
 	 */
-	public FileManager(File parent, String child) {
+	public ClientFileManager(File parent, String child) {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
-	}
-	public void ls(DataOutputStream out) throws IOException {
-		for (String nomFichier : list()) {
-            out.writeUTF(nomFichier);
-        }
-	}
-	
-	public void mkdir(String path,DataOutputStream out) throws IOException {
-		File file = new File(this.getAbsolutePath()+"/"+path); // crée un nom de path abstrait de type File object
-		if (file.mkdir()) { 
-			out.writeUTF("Le dossier " + path +" a été créé"); 
-		} else { // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
-			out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
-		}
 	}
 	public static void sendFile(String file,DataOutputStream dos ) throws IOException {
 		FileInputStream fis = new FileInputStream(file); // Fichier temporaire qui se comporte comme tube d'envoi de fichier
@@ -85,5 +66,6 @@ public class FileManager extends File {
 		while((read=dis.read(buffer, 0, buffer.length))!=0) { // Tant que le fichier à recevoir n'est pas totalement recu
 			fos.write(buffer, 0, read); // On ecrit dans le fichier temporaire de reception
 		}
-	}
+
+}
 }

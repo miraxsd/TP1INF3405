@@ -3,6 +3,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -57,7 +58,7 @@ public class Client {
 		// Création d'un canal sortant pour écrire au serveur
 		
 		
-		//DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 		PrintStream ps = new PrintStream(socket.getOutputStream());
 		String strKb;
 
@@ -68,7 +69,11 @@ public class Client {
 			// Transmettre message au serveur
 			
 			ps.println(strKb);
-
+			
+			// Si le client veut Upload un fichier au serveur
+			if(in.readUTF().equals("upload")) {
+				ClientFileManager.sendFile(in.readUTF(),out);
+			}
 			// Recevoir message du serveur
 			readMessagesFromServer(in);
 		}
@@ -115,6 +120,10 @@ public class Client {
 				String messageFromServer = "";
 				if ((messageFromServer = in.readUTF()).equals("end"))
 					break;
+				if(in.readUTF().equals("download")) {
+					ClientFileManager.saveFile(in, in.readUTF());
+				}
+					
 				System.out.println(messageFromServer);
 			}
 		} catch (java.io.EOFException ignore) {
