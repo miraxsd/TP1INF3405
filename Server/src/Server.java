@@ -119,7 +119,12 @@ public class Server {
 							break;
 						case "cd":
 							dir = new FileManager(dir,command[1]);
-							out.writeUTF("Vous êtes dans le dossier "+ dir.getPath());
+							if (command[1]!="..")
+									out.writeUTF("Vous êtes dans le dossier "+ dir.getName());
+							else {
+									String [] pathName = dir.getAbsolutePath().split("/");
+									out.writeUTF("Vous êtes dans le dossier "+ pathName[pathName.length-3]);
+							}
 							break;
 						case "mkdir":
 							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
