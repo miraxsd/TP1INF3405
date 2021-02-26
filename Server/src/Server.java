@@ -29,31 +29,31 @@ public class Server {
 
 	public static void main(String[] args) throws Exception {
 
-		// Compteur incrémenté à chaque connexion d'un client au serveur
+		// Compteur incrï¿½mentï¿½ ï¿½ chaque connexion d'un client au serveur
 		int clientNumber = 0;
 
 		// Adresse et port du serveur
 		String serverAddress = "127.0.0.1";
 		int serverPort = 5000;
 
-		// Création de la connexion pour communiquer avec les clients
+		// Crï¿½ation de la connexion pour communiquer avec les clients
 		listener = new ServerSocket();
 		listener.setReuseAddress(true);
 		InetAddress serverIP = InetAddress.getByName(serverAddress);
 
-		// Association de l'adresse et du port à la connexion
+		// Association de l'adresse et du port ï¿½ la connexion
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
-		System.out.format("Le serveur opère sur l'adresse %s:%d%n", serverAddress, serverPort);
+		System.out.format("Le serveur opï¿½re sur l'adresse %s:%d%n", serverAddress, serverPort);
 
 		try {
 			/*
-			 * À chaque fois qu'un nouveau client se connecte, on exécute la fonction Run()
+			 * ï¿½ chaque fois qu'un nouveau client se connecte, on exï¿½cute la fonction Run()
 			 * de l'objet ClientHandler.
 			 */
 			while (true) {
 				// Important: la fct accept() est bloquante : attend qu'un prochain client se
 				// connecte
-				// Une nouvelle connexion : on incrémente le compteur clientNumber
+				// Une nouvelle connexion : on incrï¿½mente le compteur clientNumber
 				new ClientHandler(listener.accept(), clientNumber++, serverAddress).start();
 
 			}
@@ -87,14 +87,14 @@ public class Server {
 
 			try {
 				
-				// Création d'un canal sortant pour envoyer des messages au client
+				// Crï¿½ation d'un canal sortant pour envoyer des messages au client
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				// to read data coming from the client
 				Scanner sc = new Scanner(socket.getInputStream());
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				FileManager dir = new FileManager(System.getProperty("user.dir"),"Stockage");	// Le client se retrouvera directement dans le dossier Stockage
 				// Envoie d'un message au client
-				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber + ". Veuillez entrer une commande.");
+				out.writeUTF("Bienvenue sur le serveur! Vous ï¿½tes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
 
 					String strClient, fileName ="";
@@ -132,18 +132,18 @@ public class Server {
 								break;
 							}
 								dir = new FileManager(dir,command[1]);
-                                out.writeUTF("Vous êtes dans le dossier "+ command[1]);
+                                out.writeUTF("Vous ï¿½tes dans le dossier "+ command[1]);
                             }
                             else {
                             	dir = new FileManager(dir,command[1]);
                                 String separator = File.separator.equals("/") ? "/" : "\\\\";
                                 String [] pathName = dir.getCanonicalPath().split(separator);
-                                out.writeUTF("Vous êtes dans le dossier "+ pathName[pathName.length -1]);
+                                out.writeUTF("Vous ï¿½tes dans le dossier "+ pathName[pathName.length -1]);
                             }
                             
                             break;
 						case "mkdir":
-							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
+							dir.mkdir(command[1], out); // command[1] == Nom de dossier ï¿½crit par le client
 							dir = new FileManager(dir,command[1]);
 							break;
 						case "upload":
@@ -170,11 +170,11 @@ public class Server {
 							}
 							break;
 						case "exit":
-							out.writeUTF("Vous avez été déconnecté avec succès");
+							out.writeUTF("Vous avez ï¿½tï¿½ dï¿½connectï¿½ avec succï¿½s");
 							//break;
 							return;
 						default:
-							out.writeUTF("La commande n'a pas été reconnue");
+							out.writeUTF("La commande n'a pas ï¿½tï¿½ reconnue");
 							// break;
 						}
 						
@@ -190,6 +190,8 @@ public class Server {
 				
 			} catch (IOException e) {
 				System.out.println("Erreur lors du traitement du client# " + clientNumber + ": " + e);
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
 			} finally {
 				try {
 					// Fermeture de la connexion avec le client
@@ -202,7 +204,7 @@ public class Server {
 				} catch (IOException e) {
 					System.out.println("Erreur lors de la fermeture du socket");
 				}
-				System.out.println("Connexion avec client# " + clientNumber + " fermée");
+				System.out.println("Connexion avec client# " + clientNumber + " fermï¿½e");
 			}
 		}
 	}
