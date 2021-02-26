@@ -17,56 +17,60 @@ import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+//import java.util.Set;
+//mport java.util.stream.Collectors;
+//import java.util.stream.Stream;
 
 public class Server {
 
 	private static ServerSocket listener;
 
-	/* Application Serveur */
+	/* 
+	 * Application serveur 
+	 */
 
 	public static void main(String[] args) throws Exception {
 
-		// Compteur incrémenté à chaque connexion d'un client au serveur
-		int clientNumber = 0;
+		
+		// 1. Initialisation des variables globales
+		int clientNumber = 0; // Compteur qui s'incrémente avec chaque nouvelle connexion au serveur
+		String serverAddress = "127.0.0.1"; // Adresse du serveur
+		int serverPort = 5000; // Port du serveur
 
-		// Adresse et port du serveur
-		String serverAddress = "127.0.0.1";
-		int serverPort = 5000;
-
-		// Crï¿½ation de la connexion pour communiquer avec les clients
-		listener = new ServerSocket();
+		// 2. Création du socket pour communiquer avec les clients
+		listener = new ServerSocket(); 
 		listener.setReuseAddress(true);
 		InetAddress serverIP = InetAddress.getByName(serverAddress);
 
-		// Association de l'adresse et du port à la connexion
+		// 3. Association (bind) de l'adresse et du port au serveur
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
 		System.out.format("Le serveur opère sur l'adresse %s:%d%n", serverAddress, serverPort);
 
 		try {
 			/*
-			 * à chaque fois qu'un nouveau client se connecte, on exï¿½cute la fonction Run()
+			 * 4. Lors de chaque nouvelle connexion client, on exécute la fonction Run()
 			 * de l'objet ClientHandler.
 			 */
 			while (true) {
-				// Important: la fct accept() est bloquante : attend qu'un prochain client se
-				// connecte
-				// Une nouvelle connexion : on incrémente le compteur clientNumber
+				/*
+				 * La fonction accept() reste bloquée en attendant qu'une application client fasse
+				 * un requête de connexion. Le compteur clientNumber est incrémenté de 1 avec chaque
+				 * nouvelle connexion. 
+				 */
+				
 				new ClientHandler(listener.accept(), clientNumber++, serverAddress).start();
 
 			}
 
 		} finally {
-			// Fermeture de la connexion
+			// 5. Fermeture de la connexion
 			listener.close();
 		}
 	}
 
 	/*
-	 * Une thread qui se charge de traiter la demande de chaque client sur un socket
-	 * particulier.
+	 * 6. ClientHandler est une thread qui se charge de traiter les demandes de plusieurs clients 
+	 * simultanément, sur des ports différents.
 	 */
 	private static class ClientHandler extends Thread {
 		private Socket socket;
@@ -82,14 +86,14 @@ public class Server {
 
 		}
 
-		/* Une thread qui se charge d'envoyer au client un message de bienvenue */
+		// 7. Run() est une thread qui permet d'avoir une communication bidirectionnelle avec le client
 		public void run() {
 
 			try {
 				
-				// Création d'un canal sortant pour envoyer des messages au client
+				// Canal sortant pour envoyer des messages au client
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-				// to read data coming from the client
+				// Canaux entrant pour recevoir les messages du client
 				Scanner sc = new Scanner(socket.getInputStream());
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				FileManager dir = new FileManager(System.getProperty("user.dir"),"Stockage");	// Le client se retrouvera directement dans le dossier Stockage
@@ -97,7 +101,7 @@ public class Server {
 				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
 
-					String strClient, fileName ="";
+					String strClient = "";
 					
 					LocalDateTime dateTime = LocalDateTime.now();
 					DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
