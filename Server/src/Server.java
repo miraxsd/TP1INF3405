@@ -190,8 +190,6 @@ public class Server {
 				
 			} catch (IOException e) {
 				System.out.println("Erreur lors du traitement du client# " + clientNumber + ": " + e);
-			} catch(Exception e) {
-				System.out.println(e.getMessage());
 			} finally {
 				try {
 					// Fermeture de la connexion avec le client
