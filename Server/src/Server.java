@@ -122,12 +122,7 @@ public class Server {
                             
                             if(!command[1].equals("..")) 
                             {
-                            Boolean folderExists=false;
-							for (File file : dir.listFiles()) {
-								if(file.getName().equals(command[1]))
-									folderExists=true;
-							}
-							if(!folderExists) {
+							if(!dir.contains(command[1])) {
 								out.writeUTF("Il n'y a pas de dossier "+command[1]);
 								break;
 							}
@@ -144,7 +139,18 @@ public class Server {
                             break;
 						case "mkdir":
 							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
-							dir = new FileManager(dir,command[1]);
+							break;
+						case "remove":
+							if(!dir.contains(command[1])) {
+								out.writeUTF("Il n'y a pas de dossier ou de fichier nommé"+command[1]);
+								break;
+							}
+							FileManager file = new FileManager(dir,command[1]);
+							 if(file.isFile())
+								 out.writeUTF("Le fichier "+ command[1] +" a été effacé");
+					         else
+					        	 out.writeUTF("Le dossier "+ command[1] +" a été effacé");
+							file.delete();
 							break;
 						case "upload":
 							try {
@@ -174,7 +180,7 @@ public class Server {
 						
 						out.writeUTF("end");
 						command[0]= "";
-						if(command.length>1)
+						if(command.length>1) // Si la commande a un deuxieme argument on le réinitialise
 							command[1]="";
 					}	 
 				}

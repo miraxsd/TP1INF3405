@@ -101,4 +101,13 @@ public class FileManager extends File {
 		}
 		fos.close();
 	}
+	// Cette fonction retourne vrai si le fichier ou dossier cherché dans le répertoire actuel existe et faux sinon
+	public Boolean contains(String fileName) {
+		Boolean fileExists=false;
+		for (File file : listFiles()) {
+			if(file.getName().equals(fileName))
+				fileExists=true;
+		}
+		return fileExists;
+	}
 }

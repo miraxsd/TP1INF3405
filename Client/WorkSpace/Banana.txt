@@ -1,2 +1,3 @@
-la
-ls
++ Documentation du code (Les commentaires en francais et le code en anglais)
++ Erreur upload et download si le fichier n'existe pas
++ Réviser le rapport et ajouter la partie qui manque fileManager
