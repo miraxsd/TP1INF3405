@@ -118,9 +118,30 @@ public class Server {
 							dir.ls(out);
 							break;
 						case "cd":
-							dir = new FileManager(dir,command[1]);
-							out.writeUTF("Vous êtes dans le dossier "+ dir.getPath());
-							break;
+							
+                            
+                            if(!command[1].equals("..")) 
+                            {
+                            Boolean folderExists=false;
+							for (File file : dir.listFiles()) {
+								if(file.getName().equals(command[1]))
+									folderExists=true;
+							}
+							if(!folderExists) {
+								out.writeUTF("Il n'y a pas de dossier "+command[1]);
+								break;
+							}
+								dir = new FileManager(dir,command[1]);
+                                out.writeUTF("Vous êtes dans le dossier "+ command[1]);
+                            }
+                            else {
+                            	dir = new FileManager(dir,command[1]);
+                                String separator = File.separator.equals("/") ? "/" : "\\\\";
+                                String [] pathName = dir.getCanonicalPath().split(separator);
+                                out.writeUTF("Vous êtes dans le dossier "+ pathName[pathName.length -1]);
+                            }
+                            
+                            break;
 						case "mkdir":
 							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
 							dir = new FileManager(dir,command[1]);
@@ -129,20 +150,23 @@ public class Server {
 							//in.readUTF();
 							try {
 								dir.saveFile(in, command[1]);
-								out.writeUTF("upload "+command[1]);
+								in.readNBytes(in.available()); // Vider le InputStream
+								//out.writeUTF("upload "+command[1]);
 							}
-							catch(java.io.FileNotFoundException e) {
-								e.printStackTrace();
+							catch(Exception e) {
+								System.out.println(e.toString()); // On peut mettre write le fichier n'existe pas
+								continue;
 							}
 							break;
 						case "download":
 							//in.readUTF();
 							try {
 							dir.sendFile(command[1],out);
-							out.writeUTF("download "+command[1]);
+							//out.writeUTF("download "+command[1]);
 							}
-							catch(java.io.FileNotFoundException e) {
-								e.printStackTrace();
+							catch(Exception e) {
+								System.out.println(e.toString());
+								continue;
 							}
 							break;
 						case "exit":
@@ -156,11 +180,12 @@ public class Server {
 						
 						out.writeUTF("end");
 						command[0]= "";
+						if(command.length>1)
+							command[1]="";
 						
 						// in.
 						//break;
-					}
-					 
+					}	 
 				}
 				
 			} catch (IOException e) {

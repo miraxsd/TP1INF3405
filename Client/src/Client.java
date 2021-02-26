@@ -77,12 +77,15 @@ public class Client {
 				break;
 			case "download":
 				dir.saveFile(in, strKb.split(" ")[1]);
+				in.readNBytes(in.available());
 				break;
 			default:
-			// Recevoir message du serveur
+			// Recevoir message du serveur	
 			readMessagesFromServer(in);
+			break;
 			}
 			
+			strKb="";
 
 			
 		}
@@ -117,7 +120,6 @@ public class Client {
 			} catch (NumberFormatException e) {
 				return false;
 			}
-
 		}
 
 		return true;

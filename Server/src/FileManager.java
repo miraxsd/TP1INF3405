@@ -55,8 +55,16 @@ public class FileManager extends File {
 		// TODO Auto-generated constructor stub
 	}
 	public void ls(DataOutputStream out) throws IOException {
-		for (String nomFichier : list()) {
-            out.writeUTF(nomFichier);
+		for (File file : listFiles()) {
+			String buffer = new String(); 
+            buffer+="[";
+            if(file.isFile())
+            	buffer+="File";
+            else
+            	buffer+="Folder";
+            buffer+="] ";
+            buffer+=file.getName();
+            out.writeUTF(buffer);
         }
 	}
 	
@@ -68,21 +76,27 @@ public class FileManager extends File {
 			out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
 		}
 	}
+	//Inspiré du code de https://gist.github.com/CarlEkerot/2693246
 	public void sendFile(String file,DataOutputStream dos ) throws IOException {
 		FileInputStream fis = new FileInputStream(this.getAbsolutePath()+"/"+file); // Fichier temporaire qui se comporte comme tube d'envoi de fichier
 		// Un buffer qui recoit des partie des données à transférer de tailles maximale de 4096 octets par partie
+		File fichier = new File(this.getAbsolutePath()+"/"+file);
+		dos.writeLong(fichier.length());
 		byte[] buffer = new byte[4096]; 				
 		while (fis.read(buffer) > 0) { // Tant que le fichier temporaire n'est pas encore tout lu
 			dos.write(buffer); // On envoie une partie du fichier par le buffer
 		}
 		fis.close();
 	}
+	//Inspiré du code de https://gist.github.com/CarlEkerot/2693246 et de https://zetcode.com/java/filesize/ pour le filesize
 	public void saveFile(DataInputStream dis, String fileName) throws IOException {
 		FileOutputStream fos = new FileOutputStream(this.getAbsolutePath()+"/"+fileName); // Fichier temporaire qui se comporte comme tube de réception de fichier
 		// Un buffer qui recoit des partie des données de tailles maximale de 4096 octets par partie
+		long remaining = dis.readLong();
 		byte[] buffer = new byte[4096]; 
 		int read = 0; // La taille de la partie des données lu dans le buffer
-		while((read=dis.read(buffer, 0, buffer.length))!=0) { // Tant que le fichier à recevoir n'est pas totalement recu
+		while((read=dis.read(buffer, 0, Math.min(buffer.length,(int) remaining)))>0) { // Tant que le fichier à recevoir n'est pas totalement recu
+			remaining -= read;
 			fos.write(buffer, 0, read); // On ecrit dans le fichier temporaire de reception
 		}
 		fos.close();
