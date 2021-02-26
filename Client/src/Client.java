@@ -61,7 +61,7 @@ public class Client {
 		
 		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 		PrintStream ps = new PrintStream(socket.getOutputStream());
-		String strKb;
+		String strKb="";
 
 		// Saisir entrée du client au clavier
 		
@@ -69,23 +69,37 @@ public class Client {
 
 			// Transmettre message au serveur
 			in.readNBytes(in.available());// Vider le InputStream
-			ps.println(strKb);
-			switch (strKb.split(" ")[0]) {
+			String [] command = strKb.split(" ");
+			switch (command[0]) {
 			case "upload":
 				// Si le client veut Upload un fichier au serveur
-				dir.sendFile( strKb.split(" ")[1],out);
+				if(dir.contains(command[1])) { // N'envoyer le fichier que s'il existe
+					ps.println(strKb); // S'il existe envoyer la commande upload au serveur
+					dir.sendFile( command[1],out);
+					}
+				else 
+					System.out.println("le fichier "+command[1]+" n'existe pas");
 				break;
 			case "download":
-				dir.saveFile(in, strKb.split(" ")[1]);
+				ps.println(strKb);
+				if(in.readUTF().equals("ready")) {
+				dir.saveFile(in,command[1]);
+				}
+				else
+					System.out.println("Aucun fichier nommé "+command[1]+" n'existe dans le dossier actuel du serveur");
 				in.readNBytes(in.available());// Vider le InputStream
 				break;
 			default:
+			ps.println(strKb);
 			// Recevoir message du serveur	
 			readMessagesFromServer(in);
 			break;
 			}
 			
 			strKb="";
+			command[0]= "";
+			if(command.length>1) // Si la commande a un deuxieme argument on le réinitialise
+				command[1]="";
 
 			
 		}
@@ -93,9 +107,7 @@ public class Client {
 		// Fermeture de la connexion avec le serveur
 		socket.close();
 		// close connections with read/write
-		//out.close();
 		ps.close();
-		// }catch(java.net.BindException e) { socket.close();}
 		kb.close();
 		sc.close();
 	}
@@ -134,9 +146,7 @@ public class Client {
 				System.out.println(messageFromServer);
 			}
 		} catch (java.io.EOFException ignore) {
-		}
-		;
-
+		};
 	}
 
 }

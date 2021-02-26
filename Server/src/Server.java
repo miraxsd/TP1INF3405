@@ -36,7 +36,7 @@ public class Server {
 		String serverAddress = "127.0.0.1";
 		int serverPort = 5000;
 
-		// Crï¿½ation de la connexion pour communiquer avec les clients
+		// Création de la connexion pour communiquer avec les clients
 		listener = new ServerSocket();
 		listener.setReuseAddress(true);
 		InetAddress serverIP = InetAddress.getByName(serverAddress);
@@ -153,23 +153,13 @@ public class Server {
 							file.delete();
 							break;
 						case "upload":
-							try {
 								dir.saveFile(in, command[1]);
 								in.readNBytes(in.available()); // Vider le InputStream
-							}
-							catch(Exception e) {
-								System.out.println(e.toString()); // On peut mettre write le fichier n'existe pas
-								continue;
-							}
 							break;
 						case "download":
-							try {
-							dir.sendFile(command[1],out);
-							}
-							catch(Exception e) {
-								System.out.println(e.toString());
-								continue;
-							}
+							if(dir.contains(command[1])) {
+								out.writeUTF("ready");
+								dir.sendFile(command[1],out);}
 							break;
 						case "exit":
 							out.writeUTF("Vous avez été déconnecté avec succès");
