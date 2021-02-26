@@ -97,87 +97,96 @@ public class Server {
 				Scanner sc = new Scanner(socket.getInputStream());
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				FileManager dir = new FileManager(System.getProperty("user.dir"),"Stockage");	// Le client se retrouvera directement dans le dossier Stockage
-				// Envoie d'un message au client
+				// Envoie d'un message de bienvenue au client 
 				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
 
 					String strClient = "";
 					
+					// Formattage d'objets de date et heure pour afficher les informations des requêtes client dans la console serveur
 					LocalDateTime dateTime = LocalDateTime.now();
 					DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
 					String formattedDateTime = dateTime.format(myFormatObj);
-					int port = socket.getPort();
+					int port = socket.getPort(); // Retourne le remote port du socket
 					
 					
 					while ((strClient=sc.nextLine())!= null) {
-						in.readNBytes(in.available());// Vider le InputStream
+						in.readNBytes(in.available()); // Vider le InputStream
+						// Afficher '[Adresse IP client:Port client - Date et heure] : < commande >'
 						System.out.println(
 								"[" + serverAddress + ":" + port + " - " + formattedDateTime + "] : " + strClient);
 						
-						// Switch Case pour les commandes
-						String [] command = strClient.split(" ");
+						// Switch Case pour traiter les commandes entrant du client
+						String [] command = strClient.split(" "); // Séparer les différents mots de la ligne 
 						
-						switch (command[0]) {
-						case "ls":
+						switch (command[0]) { // command[0] == nom de la commande à traiter
+						// Fonction affichage des dossiers ls
+						case "ls": 
 							dir.ls(out);
 							break;
+						// Fonction de déplacement entre répertoires cd
 						case "cd":
-							
-                            
-                            if(!command[1].equals("..")) 
+		
+                            if(!command[1].equals("..")) // Passage du répertoire parent au répertoire enfant
                             {
-							if(!dir.contains(command[1])) {
+							if(!dir.contains(command[1])) { // Gestion d'un répertoire non-existant
 								out.writeUTF("Il n'y a pas de dossier "+command[1]);
 								break;
 							}
 								dir = new FileManager(dir,command[1]);
                                 out.writeUTF("Vous êtes dans le dossier "+ command[1]);
                             }
-                            else {
+                            else { // Passage du répertoire enfant au répertoire parent
                             	dir = new FileManager(dir,command[1]);
-                                String separator = File.separator.equals("/") ? "/" : "\\\\";
+                                String separator = File.separator.equals("/") ? "/" : "\\\\"; // Gestion des séparateurs selon le système d'exploitation utilisé
                                 String [] pathName = dir.getCanonicalPath().split(separator);
                                 out.writeUTF("Vous êtes dans le dossier "+ pathName[pathName.length -1]);
                             }
                             
                             break;
+                        // Fonction de création de dossier mkdir
 						case "mkdir":
 							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
 							break;
+						// Fonction pour supprimer fichier remove
 						case "remove":
-							if(!dir.contains(command[1])) {
+							if(!dir.contains(command[1])) { // Gestion des fichiers non-existants
 								out.writeUTF("Il n'y a pas de dossier ou de fichier nommé"+command[1]);
 								break;
 							}
 							FileManager file = new FileManager(dir,command[1]);
-							 if(file.isFile())
+							 if(file.isFile()) 
 								 out.writeUTF("Le fichier "+ command[1] +" a été effacé");
 					         else
 					        	 out.writeUTF("Le dossier "+ command[1] +" a été effacé");
 							file.delete();
 							break;
+						// Fonction de téléversement du client vers le serveur upload
 						case "upload":
 							try {
-								dir.saveFile(in, command[1]);
+								dir.saveFile(in, command[1]); // Sauvegarder le fichier
 								in.readNBytes(in.available()); // Vider le InputStream
 							}
 							catch(Exception e) {
-								System.out.println(e.toString()); // On peut mettre write le fichier n'existe pas
+								System.out.println(e.toString()); // Afficher l'erreur s'il y en a un au moment de sauvegarder le fichier dans le serveur. On peut mettre write le fichier n'existe pas
 								continue;
 							}
 							break;
+						// Fonction de téléchargement de fichiers à partir du serveur vers le client
 						case "download":
 							try {
-							dir.sendFile(command[1],out);
+							dir.sendFile(command[1],out); // Envoyer le fichier
 							}
-							catch(Exception e) {
+							catch(Exception e) { // Afficher l'erreur s'il y en a un au moment d'envoyer le fichier vers le client
 								System.out.println(e.toString());
 								continue;
 							}
 							break;
+						// Fonction de déconnexion du serveur exit
 						case "exit":
 							out.writeUTF("Vous avez été déconnecté avec succès");
 							return;
+						// Cas par défaut : traite toute entrée non reconnue
 						default:
 							out.writeUTF("La commande n'a pas été reconnue");
 						}
@@ -189,17 +198,13 @@ public class Server {
 					}	 
 				}
 				
-			} catch (IOException e) {
+			} catch (IOException e) { 
 				System.out.println("Erreur lors du traitement du client# " + clientNumber + ": " + e);
 			} finally {
 				try {
-					// Fermeture de la connexion avec le client
+					// 8. Fermeture de la connexion avec le client
 					socket.close();
 					
-
-					// terminate
-					// System.exit(0);
-
 				} catch (IOException e) {
 					System.out.println("Erreur lors de la fermeture du socket");
 				}
