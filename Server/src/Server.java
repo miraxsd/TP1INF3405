@@ -17,56 +17,60 @@ import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+//import java.util.Set;
+//mport java.util.stream.Collectors;
+//import java.util.stream.Stream;
 
 public class Server {
 
 	private static ServerSocket listener;
 
-	/* Application Serveur */
+	/* 
+	 * Application serveur 
+	 */
 
 	public static void main(String[] args) throws Exception {
 
-		// Compteur incrÈmentÈ ‡ chaque connexion d'un client au serveur
-		int clientNumber = 0;
+		
+		// 1. Initialisation des variables globales
+		int clientNumber = 0; // Compteur qui s'incr√©mente avec chaque nouvelle connexion au serveur
+		String serverAddress = "127.0.0.1"; // Adresse du serveur
+		int serverPort = 5000; // Port du serveur
 
-		// Adresse et port du serveur
-		String serverAddress = "127.0.0.1";
-		int serverPort = 5000;
-
-		// CrÈation de la connexion pour communiquer avec les clients
-		listener = new ServerSocket();
+		// 2. Cr√©ation du socket pour communiquer avec les clients
+		listener = new ServerSocket(); 
 		listener.setReuseAddress(true);
 		InetAddress serverIP = InetAddress.getByName(serverAddress);
 
-		// Association de l'adresse et du port ‡ la connexion
+		// 3. Association (bind) de l'adresse et du port au serveur
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
-		System.out.format("Le serveur opËre sur l'adresse %s:%d%n", serverAddress, serverPort);
+		System.out.format("Le serveur op√®re sur l'adresse %s:%d%n", serverAddress, serverPort);
 
 		try {
 			/*
-			 * ‡ chaque fois qu'un nouveau client se connecte, on exÔøΩcute la fonction Run()
+			 * 4. Lors de chaque nouvelle connexion client, on ex√©cute la fonction Run()
 			 * de l'objet ClientHandler.
 			 */
 			while (true) {
-				// Important: la fct accept() est bloquante : attend qu'un prochain client se
-				// connecte
-				// Une nouvelle connexion : on incrÈmente le compteur clientNumber
+				/*
+				 * La fonction accept() reste bloqu√©e en attendant qu'une application client fasse
+				 * un requ√®te de connexion. Le compteur clientNumber est incr√©ment√© de 1 avec chaque
+				 * nouvelle connexion. 
+				 */
+				
 				new ClientHandler(listener.accept(), clientNumber++, serverAddress).start();
 
 			}
 
 		} finally {
-			// Fermeture de la connexion
+			// 5. Fermeture de la connexion
 			listener.close();
 		}
 	}
 
 	/*
-	 * Une thread qui se charge de traiter la demande de chaque client sur un socket
-	 * particulier.
+	 * 6. ClientHandler est une thread qui se charge de traiter les demandes de plusieurs clients 
+	 * simultan√©ment, sur des ports diff√®rents.
 	 */
 	private static class ClientHandler extends Thread {
 		private Socket socket;
@@ -82,22 +86,22 @@ public class Server {
 
 		}
 
-		/* Une thread qui se charge d'envoyer au client un message de bienvenue */
+		// 7. Run() est une thread qui permet d'avoir une communication bidirectionnelle avec le client
 		public void run() {
 
 			try {
 				
-				// CrÈation d'un canal sortant pour envoyer des messages au client
+				// Canal sortant pour envoyer des messages au client
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-				// to read data coming from the client
+				// Canaux entrant pour recevoir les messages du client
 				Scanner sc = new Scanner(socket.getInputStream());
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				FileManager dir = new FileManager(System.getProperty("user.dir"),"Stockage");	// Le client se retrouvera directement dans le dossier Stockage
 				// Envoie d'un message au client
-				out.writeUTF("Bienvenue sur le serveur! Vous Ítes le client #" + clientNumber + ". Veuillez entrer une commande.");
+				out.writeUTF("Bienvenue sur le serveur! Vous √™tes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
 
-					String strClient, fileName ="";
+					String strClient = "";
 					
 					LocalDateTime dateTime = LocalDateTime.now();
 					DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
@@ -127,29 +131,29 @@ public class Server {
 								break;
 							}
 								dir = new FileManager(dir,command[1]);
-                                out.writeUTF("Vous Ítes dans le dossier "+ command[1]);
+                                out.writeUTF("Vous √™tes dans le dossier "+ command[1]);
                             }
                             else {
                             	dir = new FileManager(dir,command[1]);
                                 String separator = File.separator.equals("/") ? "/" : "\\\\";
                                 String [] pathName = dir.getCanonicalPath().split(separator);
-                                out.writeUTF("Vous Ítes dans le dossier "+ pathName[pathName.length -1]);
+                                out.writeUTF("Vous √™tes dans le dossier "+ pathName[pathName.length -1]);
                             }
                             
                             break;
 						case "mkdir":
-							dir.mkdir(command[1], out); // command[1] == Nom de dossier Ècrit par le client
+							dir.mkdir(command[1], out); // command[1] == Nom de dossier √©crit par le client
 							break;
 						case "remove":
 							if(!dir.contains(command[1])) {
-								out.writeUTF("Il n'y a pas de dossier ou de fichier nommÈ"+command[1]);
+								out.writeUTF("Il n'y a pas de dossier ou de fichier nomm√©"+command[1]);
 								break;
 							}
 							FileManager file = new FileManager(dir,command[1]);
 							 if(file.isFile())
-								 out.writeUTF("Le fichier "+ command[1] +" a ÈtÈ effacÈ");
+								 out.writeUTF("Le fichier "+ command[1] +" a √©t√© effac√©");
 					         else
-					        	 out.writeUTF("Le dossier "+ command[1] +" a ÈtÈ effacÈ");
+					        	 out.writeUTF("Le dossier "+ command[1] +" a √©t√© effac√©");
 							file.delete();
 							break;
 						case "upload":
@@ -162,15 +166,15 @@ public class Server {
 								dir.sendFile(command[1],out);}
 							break;
 						case "exit":
-							out.writeUTF("Vous avez ÈtÈ dÈconnectÈ avec succËs");
+							out.writeUTF("Vous avez √©t√© d√©connect√© avec succ√®s");
 							return;
 						default:
-							out.writeUTF("La commande n'a pas ÈtÈ reconnue");
+							out.writeUTF("La commande n'a pas √©t√© reconnue");
 						}
 						
 						out.writeUTF("end");
 						command[0]= "";
-						if(command.length>1) // Si la commande a un deuxieme argument on le rÈinitialise
+						if(command.length>1) // Si la commande a un deuxieme argument on le r√©initialise
 							command[1]="";
 					}	 
 				}
@@ -189,7 +193,7 @@ public class Server {
 				} catch (IOException e) {
 					System.out.println("Erreur lors de la fermeture du socket");
 				}
-				System.out.println("Connexion avec client# " + clientNumber + " fermÈe");
+				System.out.println("Connexion avec client# " + clientNumber + " ferm√©e");
 			}
 		}
 	}
