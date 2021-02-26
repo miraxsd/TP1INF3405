@@ -54,9 +54,6 @@ public class FileManager extends File {
 		super(parent, child);
 		// TODO Auto-generated constructor stub
 	}
-	// Fonction ls :: commande permettant d'afficher tous les dossiers et fichiers dans le répértoire courant de l'utilisateur au niveau du serveur.
-	// Elle ne retourne rien.
-	// Elle prend en paramètres un objet de type DataOutputStream.
 	public void ls(DataOutputStream out) throws IOException {
 		for (File file : listFiles()) {
 			String buffer = new String(); 
@@ -70,51 +67,41 @@ public class FileManager extends File {
             out.writeUTF(buffer);
         }
 	}
-	// Fonction mkdir :: commande permettant la création d'un dossier au niveau du serveur de stockage.
-	// Elle ne retourne rien.
-	// Elle prend en paramètres le nom du dossier path de type String et un objet de type DataOutputStream.
+	
 	public void mkdir(String path,DataOutputStream out) throws IOException {
 		File file = new File(this.getAbsolutePath()+"/"+path); // crée un nom de path abstrait de type File object
 		if (file.mkdir()) { 
 			out.writeUTF("Le dossier " + path +" a été créé"); 
-		} else { 											  // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
+		} else { // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
 			out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
 		}
 	}
-	// Cette partie a été inspirée par le code de Carl Ekerot. Lien vers le code https://gist.github.com/CarlEkerot/2693246
-			// Fonction sendFile :: Envoie du fichier
-			// Elle ne retourne rien
-			// Elle prend en paramètres le nom du fichier à envoyer de type String et un objet de type DataOutputStream.
+	//Inspiré du code de https://gist.github.com/CarlEkerot/2693246
 	public void sendFile(String file,DataOutputStream dos ) throws IOException {
-		FileInputStream fis = new FileInputStream(this.getAbsolutePath()+"/"+file); // Fichier temporaire qui se comporte comme tube d'envoi de fichier.
+		FileInputStream fis = new FileInputStream(this.getAbsolutePath()+"/"+file); // Fichier temporaire qui se comporte comme tube d'envoi de fichier
 		// Un buffer qui recoit des partie des données à transférer de tailles maximale de 4096 octets par partie
 		File fichier = new File(this.getAbsolutePath()+"/"+file);
 		dos.writeLong(fichier.length());
 		byte[] buffer = new byte[4096]; 				
-		while (fis.read(buffer) > 0) { 												// Tant que le fichier temporaire n'est pas encore tout lu.
-			dos.write(buffer); 														// On envoie une partie du fichier par le buffer.
+		while (fis.read(buffer) > 0) { // Tant que le fichier temporaire n'est pas encore tout lu
+			dos.write(buffer); // On envoie une partie du fichier par le buffer
 		}
 		fis.close();
 	}
-	// Cette partie a été inspiré par le code de Carl Ekerot. Lien vers le code https://gist.github.com/CarlEkerot/2693246.
-			// Fonction saveFile :: Enregistrement du fichier
-			// Elle ne retourne rien
-			// Elle prend en paramètres le nom du fichier à envoyer de type String et un objet de type DataInputStream.
+	//Inspiré du code de https://gist.github.com/CarlEkerot/2693246 et de https://zetcode.com/java/filesize/ pour le filesize
 	public void saveFile(DataInputStream dis, String fileName) throws IOException {
 		FileOutputStream fos = new FileOutputStream(this.getAbsolutePath()+"/"+fileName); // Fichier temporaire qui se comporte comme tube de réception de fichier
 		// Un buffer qui recoit des partie des données de tailles maximale de 4096 octets par partie
 		long remaining = dis.readLong();
 		byte[] buffer = new byte[4096]; 
-		int read = 0; 																	  // La taille de la partie des données lu dans le buffer
-		while((read=dis.read(buffer, 0, Math.min(buffer.length,(int) remaining)))>0) {    // Tant que le fichier à recevoir n'est pas totalement recu
+		int read = 0; // La taille de la partie des données lu dans le buffer
+		while((read=dis.read(buffer, 0, Math.min(buffer.length,(int) remaining)))>0) { // Tant que le fichier à recevoir n'est pas totalement recu
 			remaining -= read;
-			fos.write(buffer, 0, read); 												  // On ecrit dans le fichier temporaire de reception
+			fos.write(buffer, 0, read); // On ecrit dans le fichier temporaire de reception
 		}
 		fos.close();
 	}
-	// Fonction contains :: Vérifier si le fichier existe.
-			// Elle retourne une valeur booléenne qui indique l'existance du fichier.
-			// Elle prend en paramètres le nom du fichier qu'on désir trouver de type String.
+	// Cette fonction retourne vrai si le fichier ou dossier cherché dans le répertoire actuel existe et faux sinon
 	public Boolean contains(String fileName) {
 		Boolean fileExists=false;
 		for (File file : listFiles()) {
