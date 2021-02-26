@@ -68,7 +68,7 @@ public class Client {
 			while ((strKb = kb.nextLine()) != null) {
 
 			// Transmettre message au serveur
-			
+			in.readNBytes(in.available());// Vider le InputStream
 			ps.println(strKb);
 			switch (strKb.split(" ")[0]) {
 			case "upload":
@@ -77,7 +77,7 @@ public class Client {
 				break;
 			case "download":
 				dir.saveFile(in, strKb.split(" ")[1]);
-				in.readNBytes(in.available());
+				in.readNBytes(in.available());// Vider le InputStream
 				break;
 			default:
 			// Recevoir message du serveur	
@@ -131,14 +131,6 @@ public class Client {
 				String messageFromServer = "";
 				if ((messageFromServer = in.readUTF()).equals("end"))
 					break;
-				/*if(in.readUTF().equals("download")) {
-					ClientFileManager.saveFile(in, in.readUTF());
-				}
-				// Si le client veut Upload un fichier au serveur
-				if(in.readUTF().equals("upload")) {
-					ClientFileManager.sendFile(in.readUTF(),out);
-				}*/
-					
 				System.out.println(messageFromServer);
 			}
 		} catch (java.io.EOFException ignore) {
