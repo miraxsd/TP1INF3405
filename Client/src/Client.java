@@ -18,18 +18,18 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		ClientFileManager dir = new ClientFileManager(System.getProperty("user.dir"),"WorkSpace");
-		// Address et port du serveur
+		//1. Demander au client d'entrer l'address et port du serveur
 		System.out.println("Entrez adresse IP du serveur:");
 		
 		String serverAddress = sc.next();
-
+			// Tant que l'adresse ip n'est pas valide demander de entrer une autre adresse.
 		while (!ipValide(serverAddress)) {
 			System.out.println("Adress IP invalide. Veuillez entrer un autre adresse IP valide:");
 			serverAddress = sc.next();
 		}
 		System.out.println("Entrez numéro de port du serveur :");
 		int port = 0;
-		while ((port < 5000) || (port > 5050)) { //il y un problème ici si on rentre un port invalid. 
+		while ((port < 5000) || (port > 5050)) { 
 			try {
 				port = sc.nextInt();
 			} catch (java.util.InputMismatchException e) {
