@@ -74,4 +74,12 @@ public class ClientFileManager extends File {
 			}
 			fos.close();
 		}
+		public Boolean contains(String fileName) {
+			Boolean fileExists=false;
+			for (File file : listFiles()) {
+				if(file.getName().equals(fileName))
+					fileExists=true;
+			}
+			return fileExists;
+		}
 }
