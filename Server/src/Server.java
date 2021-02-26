@@ -119,15 +119,7 @@ public class Server {
 							break;
 						case "cd":
 							dir = new FileManager(dir,command[1]);
-							if(!command[1].equals("..")) 
-								out.writeUTF("Vous êtes dans le dossier "+ dir.getName());
-								
-							else {
-								String separator = File.separator.equals("/") ? "/" : "\\\\";
-								String [] pathName = dir.getCanonicalPath().split(separator);
-								out.writeUTF("Vous êtes dans le dossier "+ pathName[pathName.length -1]);
-								
-							}
+							out.writeUTF("Vous êtes dans le dossier "+ dir.getPath());
 							break;
 						case "mkdir":
 							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
@@ -173,8 +165,6 @@ public class Server {
 				
 			} catch (IOException e) {
 				System.out.println("Erreur lors du traitement du client# " + clientNumber + ": " + e);
-			} catch(Exception e) {
-				System.out.println(e.getMessage());
 			} finally {
 				try {
 					// Fermeture de la connexion avec le client
