@@ -22,28 +22,28 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 
 		// 1. Initialisation des variables globales
-		int clientNumber = 0; // Compteur qui s'incrï¿½mente avec chaque nouvelle connexion au serveur
+		int clientNumber = 0; // Compteur qui s'incrémente avec chaque nouvelle connexion au serveur
 		String serverAddress = "127.0.0.1"; // Adresse du serveur
 		int serverPort = 5000; // Port du serveur
 
-		// 2. Crï¿½ation du socket pour communiquer avec les clients
+		// 2. Création du socket pour communiquer avec les clients
 		listener = new ServerSocket();
 		listener.setReuseAddress(true);
 		InetAddress serverIP = InetAddress.getByName(serverAddress);
 
 		// 3. Association (bind) de l'adresse et du port au serveur
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
-		System.out.format("Le serveur opï¿½re sur l'adresse %s:%d%n", serverAddress, serverPort);
+		System.out.format("Le serveur opère sur l'adresse %s:%d%n", serverAddress, serverPort);
 
 		try {
 			/*
-			 * 4. Lors de chaque nouvelle connexion client, on exÃ©cute la fonction Run() de
+			 * 4. Lors de chaque nouvelle connexion client, on exécute la fonction Run() de
 			 * l'objet ClientHandler.
 			 */
 			while (true) {
 				/*
-				 * La fonction accept() reste bloquÃ©e en attendant qu'une application client
-				 * fasse un requÃ¨te de connexion. Le compteur clientNumber est incrÃ©mentÃ© de
+				 * La fonction accept() reste bloquée en attendant qu'une application client
+				 * fasse un requête de connexion. Le compteur clientNumber est incrémenté de
 				 * 1 avec chaque nouvelle connexion.
 				 */
 
@@ -59,7 +59,7 @@ public class Server {
 
 	/*
 	 * 6. ClientHandler est une thread qui se charge de traiter les demandes de
-	 * plusieurs clients simultanÃ©ment, sur des ports diffÃ¨rents.
+	 * plusieurs clients simultanément, sur des ports différents.
 	 */
 	private static class ClientHandler extends Thread {
 		private Socket socket;
@@ -90,14 +90,14 @@ public class Server {
 																								// directement dans le
 																								// dossier Stockage
 				// Envoie d'un message de bienvenue au client
-				out.writeUTF("Bienvenue sur le serveur! Vous Ãªtes le client #" + clientNumber
+				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber
 						+ ". Veuillez entrer une commande.");
 				while (true) {
 
 					String strClient = "";
 
 					// Formattage d'objets de date et heure pour afficher les informations des
-					// requÃªtes client dans la console serveur
+					// requêtes client dans la console serveur
 					LocalDateTime dateTime = LocalDateTime.now();
 					DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
 					String formattedDateTime = dateTime.format(myFormatObj);
@@ -110,54 +110,54 @@ public class Server {
 								"[" + serverAddress + ":" + port + " - " + formattedDateTime + "] : " + strClient);
 
 						// Switch Case pour traiter les commandes entrant du client
-						String[] command = strClient.split(" "); // SÃ©parer les diffÃ©rents mots de la ligne
+						String[] command = strClient.split(" "); // Séparer les différents mots de la ligne
 
-						switch (command[0]) { // command[0] == nom de la commande Ã  traiter
+						switch (command[0]) { // command[0] == nom de la commande à traiter
 						// Fonction affichage des dossiers ls
 						case "ls":
 							dir.ls(out);
 							break;
-						// Fonction de dÃ©placement entre rÃ©pertoires cd
+						// Fonction de déplacement entre répertoires: cd
 						case "cd":
 
-							if (!command[1].equals("..")) // Passage du rÃ©pertoire parent au rÃ©pertoire enfant
+							if (!command[1].equals("..")) // Passage du répertoire parent au répertoire enfant
 							{
-								if (!dir.contains(command[1])) { // Gestion d'un rÃ©pertoire non-existant
+								if (!dir.contains(command[1])) { // Gestion d'un répertoire non-existant
 									out.writeUTF("Il n'y a pas de dossier " + command[1]);
 									break;
 								}
 								dir = new FileManager(dir, command[1]);
-								out.writeUTF("Vous ï¿½tes dans le dossier " + command[1]);
-							} else { // Passage du rÃ©pertoire enfant au rÃ©pertoire parent
+								out.writeUTF("Vous êtes dans le dossier " + command[1]);
+							} else { // Passage du répertoire enfant au répertoire parent
 								dir = new FileManager(dir, command[1]);
 								String separator = File.separator.equals("/") ? "/" : "\\\\"; // Gestion des
-																								// sÃ©parateurs selon le
-																								// systÃ¨me
+																								// séparateurs selon le
+																								// système
 																								// d'exploitation
-																								// utilisÃ©
+																								// utilisé
 								String[] pathName = dir.getCanonicalPath().split(separator);
-								out.writeUTF("Vous ï¿½tes dans le dossier " + pathName[pathName.length - 1]);
+								out.writeUTF("Vous êtes dans le dossier " + pathName[pathName.length - 1]);
 							}
 
 							break;
-						// Fonction de crÃ©ation de dossier mkdir
+						// Fonction de création de dossier mkdir
 						case "mkdir":
-							dir.mkdir(command[1], out); // command[1] == Nom de dossier Ã©crit par le client
+							dir.mkdir(command[1], out); // command[1] == Nom de dossier écrit par le client
 							break;
 						// Fonction pour supprimer fichier remove
 						case "remove":
 							if (!dir.contains(command[1])) { // Gestion des fichiers non-existants
-								out.writeUTF("Il n'y a pas de dossier ou de fichier nommÃ© " + command[1]);
+								out.writeUTF("Il n'y a pas de dossier ou de fichier nommé " + command[1]);
 								break;
 							}
 							FileManager file = new FileManager(dir, command[1]);
 							if (file.isFile())
-								out.writeUTF("Le fichier " + command[1] + " a ï¿½tï¿½ effacï¿½");
+								out.writeUTF("Le fichier " + command[1] + " a été effacé");
 							else
-								out.writeUTF("Le dossier " + command[1] + " a ï¿½tï¿½ effacï¿½");
+								out.writeUTF("Le dossier " + command[1] + " a été effacé");
 							file.delete();
 							break;
-						// Fonction de tÃ©lÃ©versement du client vers le serveur upload
+						// Fonction de téléversement du client vers le serveur upload
 						case "upload":
 
 							if (in.readUTF().equals("ready"))
@@ -165,25 +165,25 @@ public class Server {
 							in.readNBytes(in.available());// Vider le InputStream
 
 							break;
-						// Fonction de tÃ©lÃ©chargement de fichiers Ã  partir du serveur vers le client
+						// Fonction de téléchargement de fichiers à partir du serveur vers le client
 						case "download":
 							if (dir.contains(command[1])) {
-								out.writeUTF("ready"); // Informe le client que le fichier demandÃ© existe
+								out.writeUTF("ready"); // Informe le client que le fichier demandé existe
 								dir.sendFile(command[1], out);
 							} // Envoyer le fichier
 							break;
-						// Fonction de dÃ©connexion du serveur exit
+						// Fonction de déconnexion du serveur exit
 						case "exit":
-							out.writeUTF("Vous avez ï¿½tï¿½ dï¿½connectï¿½ avec succï¿½s");
+							out.writeUTF("Vous avez été déconnecté avec succès");
 							return;
-						// Cas par dÃ©faut : traite toute entrÃ©e non reconnue
+						// Cas par défaut : traite toute entrée non reconnue
 						default:
-							out.writeUTF("La commande n'a pas ï¿½tï¿½ reconnue");
+							out.writeUTF("La commande n'a pas été reconnue");
 						}
 
 						out.writeUTF("end");
 						command[0] = "";
-						if (command.length > 1) // Si la commande a un deuxieme argument on le rÃ©initialise
+						if (command.length > 1) // Si la commande a un deuxieme argument on le réinitialise
 							command[1] = "";
 					}
 				}
@@ -198,7 +198,7 @@ public class Server {
 				} catch (IOException e) {
 					System.out.println("Erreur lors de la fermeture du socket");
 				}
-				System.out.println("Connexion avec client# " + clientNumber + " fermï¿½e");
+				System.out.println("Connexion avec client# " + clientNumber + " fermée");
 			}
 		}
 	}
