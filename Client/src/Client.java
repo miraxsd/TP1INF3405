@@ -72,20 +72,23 @@ public class Client {
 		while ((strKb = kb.nextLine()) != null) {
 
 			// Transmettre message au serveur
+			ps.println(strKb);
 			in.readNBytes(in.available());// Vider le InputStream
 			String[] command = strKb.split(" ");
 			switch (command[0]) {
 			case "upload":
 				// Si le client veut Upload un fichier au serveur
 				if (dir.contains(command[1])) { // N'envoyer le fichier que s'il existe
-					ps.println(strKb); // S'il existe envoyer la commande upload au serveur
+					out.writeUTF("ready"); // Informe le serveur que le fichier demandé existe
 					dir.sendFile(command[1], out);
-					System.out.println("Le fichier " + command[0] + " ï¿½ bien ï¿½tï¿½ tï¿½lï¿½versï¿½.");
-				} else
+					System.out.println("Le fichier " + command[1] + " a bien été téléversé.");
+				} else {
+					out.writeUTF("sorry");
 					System.out.println("le fichier " + command[1] + " n'existe pas");
+				}
 				break;
 			case "download":
-				ps.println(strKb);
+
 				if (in.readUTF().equals("ready")) {
 					dir.saveFile(in, command[1]);
 					System.out.println("Le fichier " + command[1] + " a bien ï¿½tï¿½ tï¿½lï¿½chargï¿½.");
@@ -95,7 +98,6 @@ public class Client {
 				in.readNBytes(in.available());// Vider le InputStream
 				break;
 			default:
-				ps.println(strKb);
 				// Recevoir message du serveur
 				readMessagesFromServer(in);
 				break;

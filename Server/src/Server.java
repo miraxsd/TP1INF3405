@@ -159,8 +159,11 @@ public class Server {
 							break;
 						// Fonction de téléversement du client vers le serveur upload
 						case "upload":
-							dir.saveFile(in, command[1]); // Sauvegarder le fichier
-							in.readNBytes(in.available()); // Vider le InputStream
+
+							if (in.readUTF().equals("ready"))
+								dir.saveFile(in, command[1]);// Sauvegarder le fichier sur le serveur
+							in.readNBytes(in.available());// Vider le InputStream
+
 							break;
 						// Fonction de téléchargement de fichiers à partir du serveur vers le client
 						case "download":
