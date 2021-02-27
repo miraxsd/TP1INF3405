@@ -17,6 +17,10 @@ import java.net.URI;
 public class ClientFileManager extends File {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * @param pathname
 	 */
 	public ClientFileManager(String pathname) {

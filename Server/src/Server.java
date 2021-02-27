@@ -3,23 +3,14 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-//import java.util.Set;
-//mport java.util.stream.Collectors;
-//import java.util.stream.Stream;
+
 
 public class Server {
 
@@ -33,18 +24,18 @@ public class Server {
 
 		
 		// 1. Initialisation des variables globales
-		int clientNumber = 0; // Compteur qui s'incrÃ©mente avec chaque nouvelle connexion au serveur
+		int clientNumber = 0; // Compteur qui s'incrémente avec chaque nouvelle connexion au serveur
 		String serverAddress = "127.0.0.1"; // Adresse du serveur
 		int serverPort = 5000; // Port du serveur
 
-		// 2. CrÃ©ation du socket pour communiquer avec les clients
+		// 2. Création du socket pour communiquer avec les clients
 		listener = new ServerSocket(); 
 		listener.setReuseAddress(true);
 		InetAddress serverIP = InetAddress.getByName(serverAddress);
 
 		// 3. Association (bind) de l'adresse et du port au serveur
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
-		System.out.format("Le serveur opÃ¨re sur l'adresse %s:%d%n", serverAddress, serverPort);
+		System.out.format("Le serveur opère sur l'adresse %s:%d%n", serverAddress, serverPort);
 
 		try {
 			/*
@@ -98,7 +89,7 @@ public class Server {
 				DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				FileManager dir = new FileManager(System.getProperty("user.dir"),"Stockage");	// Le client se retrouvera directement dans le dossier Stockage
 				// Envoie d'un message au client
-				out.writeUTF("Bienvenue sur le serveur! Vous Ãªtes le client #" + clientNumber + ". Veuillez entrer une commande.");
+				out.writeUTF("Bienvenue sur le serveur! Vous êtes le client #" + clientNumber + ". Veuillez entrer une commande.");
 				while (true) {
 
 					String strClient = "";
@@ -131,13 +122,13 @@ public class Server {
 								break;
 							}
 								dir = new FileManager(dir,command[1]);
-                                out.writeUTF("Vous Ãªtes dans le dossier "+ command[1]);
+                                out.writeUTF("Vous êtes dans le dossier "+ command[1]);
                             }
                             else {
                             	dir = new FileManager(dir,command[1]);
                                 String separator = File.separator.equals("/") ? "/" : "\\\\";
                                 String [] pathName = dir.getCanonicalPath().split(separator);
-                                out.writeUTF("Vous Ãªtes dans le dossier "+ pathName[pathName.length -1]);
+                                out.writeUTF("Vous êtes dans le dossier "+ pathName[pathName.length -1]);
                             }
                             
                             break;
@@ -146,14 +137,14 @@ public class Server {
 							break;
 						case "remove":
 							if(!dir.contains(command[1])) {
-								out.writeUTF("Il n'y a pas de dossier ou de fichier nommÃ©"+command[1]);
+								out.writeUTF("Il n'y a pas de dossier ou de fichier nommé "+command[1]);
 								break;
 							}
 							FileManager file = new FileManager(dir,command[1]);
 							 if(file.isFile())
-								 out.writeUTF("Le fichier "+ command[1] +" a Ã©tÃ© effacÃ©");
+								 out.writeUTF("Le fichier "+ command[1] +" a été effacé");
 					         else
-					        	 out.writeUTF("Le dossier "+ command[1] +" a Ã©tÃ© effacÃ©");
+					        	 out.writeUTF("Le dossier "+ command[1] +" a été effacé");
 							file.delete();
 							break;
 						case "upload":
@@ -166,10 +157,10 @@ public class Server {
 								dir.sendFile(command[1],out);}
 							break;
 						case "exit":
-							out.writeUTF("Vous avez Ã©tÃ© dÃ©connectÃ© avec succÃ¨s");
+							out.writeUTF("Vous avez été déconnecté avec succès");
 							return;
 						default:
-							out.writeUTF("La commande n'a pas Ã©tÃ© reconnue");
+							out.writeUTF("La commande n'a pas été reconnue");
 						}
 						
 						out.writeUTF("end");
@@ -189,11 +180,11 @@ public class Server {
 
 					// terminate
 					// System.exit(0);
-
+					// sc.close();
 				} catch (IOException e) {
 					System.out.println("Erreur lors de la fermeture du socket");
 				}
-				System.out.println("Connexion avec client# " + clientNumber + " fermÃ©e");
+				System.out.println("Connexion avec client# " + clientNumber + " fermée");
 			}
 		}
 	}

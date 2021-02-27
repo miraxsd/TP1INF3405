@@ -1,11 +1,7 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Client {
@@ -19,35 +15,41 @@ public class Client {
 		Scanner sc = new Scanner(System.in);
 		ClientFileManager dir = new ClientFileManager(System.getProperty("user.dir"),"WorkSpace");
 		// Address et port du serveur
+		int port=0;
 		System.out.println("Entrez adresse IP du serveur:");
-		
+		Scanner kb = new Scanner(System.in);
 		String serverAddress = sc.next();
-
+		while(true) {
 		while (!ipValide(serverAddress)) {
-			System.out.println("Adress IP invalide. Veuillez entrer un autre adresse IP valide:");
+			System.out.println("Adresse IP invalide. Veuillez entrer un autre adresse IP valide:");
 			serverAddress = sc.next();
 		}
-		System.out.println("Entrez numéro de port du serveur :");
-		int port = 0;
-		while ((port < 5000) || (port > 5050)) { //il y un problème ici si on rentre un port invalid. 
-			try {
-				port = sc.nextInt();
-			} catch (java.util.InputMismatchException e) {
-				System.out.println("Numéro de port invalide. Veuillez enter un numéro de port entre 5000 and 5050 :");
-			}
-			if (port < 5000 || port > 5050)
-				System.out.println("Numéro de port invalide. Veuillez enter un numéro de port entre 5000 and 5050 :");
-		}
-		
+		// Lire le port
+			port=readPort(sc);
+			
 		if (socket != null)
 			socket.close();
 		
-		Scanner kb = new Scanner(System.in);
+
 		// 1. Création d'une nouvelle connexion avec le serveur
 		//String serverAddress="127.0.0.1";
 		//int port=5000;
+		
+		try {
 		socket = new Socket(serverAddress, port);
-		System.out.println("Le serveur opère sur l'adresse " + serverAddress + ":" + port);
+		//Attendre que le client soit connecté au serveur
+		//Si la connection est timed out redemander au client d'entrer une nouvelle adresse du serveur
+		synchronized (socket){
+		socket.notify();}}
+		catch(java.net.ConnectException e) {
+			System.out.println("Impossible de se connecter à ce serveur");
+			serverAddress="";
+			port=0;
+			continue;
+		}
+		break;
+		}
+		System.out.println("Le serveur opere sur l'adresse " + serverAddress + ":" + port);
 
 		// Création d'un canal entrant pour recevoir les messages envoyés par le serveur
 		DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -57,8 +59,6 @@ public class Client {
 		System.out.println(messageFromServer);
 
 		// Création d'un canal sortant pour écrire au serveur
-		
-		
 		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 		PrintStream ps = new PrintStream(socket.getOutputStream());
 		String strKb="";
@@ -76,6 +76,7 @@ public class Client {
 				if(dir.contains(command[1])) { // N'envoyer le fichier que s'il existe
 					ps.println(strKb); // S'il existe envoyer la commande upload au serveur
 					dir.sendFile( command[1],out);
+					System.out.println("Le fichier "+command[0]+" à bien été téléversé.");
 					}
 				else 
 					System.out.println("le fichier "+command[1]+" n'existe pas");
@@ -84,6 +85,7 @@ public class Client {
 				ps.println(strKb);
 				if(in.readUTF().equals("ready")) {
 				dir.saveFile(in,command[1]);
+				System.out.println("Le fichier "+command[1]+" a bien été téléchargé.");
 				}
 				else
 					System.out.println("Aucun fichier nommé "+command[1]+" n'existe dans le dossier actuel du serveur");
@@ -95,13 +97,10 @@ public class Client {
 			readMessagesFromServer(in);
 			break;
 			}
-			
 			strKb="";
 			command[0]= "";
 			if(command.length>1) // Si la commande a un deuxieme argument on le réinitialise
-				command[1]="";
-
-			
+				command[1]="";	
 		}
 
 		// Fermeture de la connexion avec le serveur
@@ -147,6 +146,27 @@ public class Client {
 			}
 		} catch (java.io.EOFException ignore) {
 		};
+	}
+	// Inspiré de https://stackoverflow.com/questions/17985575/checking-if-input-from-scanner-is-int-with-while-loop-java
+	public static int readPort(Scanner sc) {
+			int port=0;
+			System.out.println("Entrez numéro de port du serveur :");
+			if (sc.hasNextInt()) {
+			    port = sc.nextInt();
+			} else {
+			    sc.next();   
+			    port = 0;
+			}
+			while (port > 5050 || port < 5000) {
+			    System.out.print("Numéro de port invalide. Veuillez enter un numéro de port entre 5000 et 5050 :");
+			    if (sc.hasNextInt()) {
+			        port = sc.nextInt();
+			     } else {
+			       String buffer = sc.next();
+			       port = 0;
+			    }
+			}
+			return port;
 	}
 
 }
