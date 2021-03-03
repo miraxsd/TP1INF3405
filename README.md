@@ -18,4 +18,4 @@
 
 #### Pour une description plus détaillée sur les fonctionnalités de l'application: <br>
 Voici le lien de l'énoncé du TP: [Énoncé_TP1.pdf](INF3405_LAB1_H2021.pdf) <br>
-Ainsi notre rapport sur les fonctionnalités afin de les expliquer: [Rapport_Laboratoire1.pdf](INF3405-GR04-1690615_1946439_1981631_Rapport_Laboratoire1.pdf)
+Ainsi que notre rapport sur les fonctionnalités afin de les expliquer: [Rapport_Laboratoire1.pdf](INF3405-GR04-1690615_1946439_1981631_Rapport_Laboratoire1.pdf)
