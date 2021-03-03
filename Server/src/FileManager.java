@@ -78,7 +78,7 @@ public class FileManager extends File {
 		if (file.mkdir()) { 
 			out.writeUTF("Le dossier " + path +" a été créé"); 
 		} else { 											  // Si le nom de dossier exist déjà, saisir un nouveau nom de dossier 
-			out.writeUTF("Un fichier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
+			out.writeUTF("Un dossier de ce nom existe déjà. Veuillez choisir un autre nom de dossier.");
 		}
 	}
 	// Cette partie a été inspirée par le code de Carl Ekerot. Lien vers le code https://gist.github.com/CarlEkerot/2693246
